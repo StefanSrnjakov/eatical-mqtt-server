@@ -1,5 +1,6 @@
 const topics = require("./topics")
-const Transactions = require('../models/BlockchainImagesModel')
+const BlockSchema = require('../models/BlockModel')
+const md5 = require("blueimp-md5");
 
 function initializeMqttEvents(mqttServer, aedes) {
 
@@ -20,16 +21,48 @@ function initializeMqttEvents(mqttServer, aedes) {
     })
 
     aedes.on('publish', async function(packet, client) {
-        if (client) {
-            console.log(`[MESSAGE_PUBLISHED] Client ${(client ? client.id : 'BROKER_' + aedes.id)} has published message on ${packet.topic} to broker ${aedes.id}`)
-        }
+        if (!client) return;
+
+        console.log('[MESSAGE_PUBLISHED] Client ' + client.id + ' has published message on ${packet.topic} to broker ${aedes.id}')
         if (packet.topic == topics.FOOD_TOPIC || packet.topic == topics.MENU_TOPIC || packet.topic == topics.RESTAURANT_TOPIC) {
             handleMessageOnTopic(packet, client);
         }
     })
 }
+/* in payload needs to be sent
+{ 
+    coordinates:[double, double] 
+    image: <we will choose later>
+}*/
+async function handleMessageOnTopic(packet, client) {
+    const username = packet.username;
+    const topic = packet.topic;
+    const timestamp = new Date();
 
-function handleMessageOnTopic(packet, client) {
+    const payload = JSON.parse(packet.payload.toString());
+    const coordinates = payload.coordinates;
+    const imgPath = payload.image; //TODO get binary image, save it and get path
 
+    const output = await BlockSchema.find().sort({ 'timestamp': -1 });
+    if (!output) return;
+
+    const prevHash = output.length > 0 ? output[0].hash : undefined;
+    const hash = md5(username + topic + timestamp.toString() + JSON.stringify(coordinates) + imgPath + username);
+
+    const newBlock = new BlockSchema({
+        timestamp: timestamp,
+        coordinates: coordinates,
+        transaction: {
+            user: username,
+            imgPath: imgPath,
+            type: topic
+        },
+        prevHash: prevHash,
+        hash: hash
+    })
+    const output2 = await newBlock.save();
+    if (output2) {
+        console.log("[BLOCK_ADDED]");
+    }
 }
 module.exports = { initializeMqttEvents }
