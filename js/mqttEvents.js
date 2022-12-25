@@ -23,7 +23,7 @@ function initializeMqttEvents(mqttServer, aedes) {
     aedes.on('publish', async function(packet, client) {
         if (!client) return;
 
-        console.log('[MESSAGE_PUBLISHED] Client ' + client.id + ' has published message on ${packet.topic} to broker ${aedes.id}')
+        console.log('[MESSAGE_PUBLISHED] Client ' + client.id + ' has published message')
         if (packet.topic == topics.FOOD_TOPIC || packet.topic == topics.MENU_TOPIC || packet.topic == topics.RESTAURANT_TOPIC) {
             handleMessageOnTopic(packet, client);
         }
@@ -35,7 +35,7 @@ function initializeMqttEvents(mqttServer, aedes) {
     image: <we will choose later>
 }*/
 async function handleMessageOnTopic(packet, client) {
-    const username = packet.username;
+    const id = client.id;
     const topic = packet.topic;
     const timestamp = new Date();
 
@@ -47,13 +47,13 @@ async function handleMessageOnTopic(packet, client) {
     if (!output) return;
 
     const prevHash = output.length > 0 ? output[0].hash : undefined;
-    const hash = md5(username + topic + timestamp.toString() + JSON.stringify(coordinates) + imgPath + username);
+    const hash = md5(id + topic + timestamp.toString() + JSON.stringify(coordinates) + imgPath + id);
 
     const newBlock = new BlockSchema({
         timestamp: timestamp,
         coordinates: coordinates,
         transaction: {
-            user: username,
+            user: id,
             imgPath: imgPath,
             type: topic
         },
