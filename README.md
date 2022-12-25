@@ -7,7 +7,7 @@
   
 ### This server is used as mqtt broker
 
-### For successuful message you need to connect to any of this topics
+### For correct message you need to connect to any of this topics
    food, <br/>
    menu, <br/>
    restaurant <br/>
