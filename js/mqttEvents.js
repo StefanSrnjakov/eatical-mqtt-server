@@ -1,4 +1,5 @@
-const topics = require("./topics").default
+const topics = require("./topics")
+const Transactions = require('../models/BlockchainImagesModel')
 
 function initializeMqttEvents(mqttServer, aedes) {
 
@@ -22,6 +23,13 @@ function initializeMqttEvents(mqttServer, aedes) {
         if (client) {
             console.log(`[MESSAGE_PUBLISHED] Client ${(client ? client.id : 'BROKER_' + aedes.id)} has published message on ${packet.topic} to broker ${aedes.id}`)
         }
+        if (packet.topic == topics.FOOD_TOPIC || packet.topic == topics.MENU_TOPIC || packet.topic == topics.RESTAURANT_TOPIC) {
+            handleMessageOnTopic(packet, client);
+        }
     })
+}
+
+function handleMessageOnTopic(packet, client) {
+
 }
 module.exports = { initializeMqttEvents }
