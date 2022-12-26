@@ -1,5 +1,6 @@
 const topics = require("./topics")
 const BlockSchema = require('../models/BlockModel')
+const fs = require('fs');
 const md5 = require("blueimp-md5");
 
 function initializeMqttEvents(mqttServer, aedes) {
@@ -41,7 +42,20 @@ async function handleMessageOnTopic(packet, client) {
 
     const payload = JSON.parse(packet.payload.toString());
     const coordinates = payload.coordinates;
-    const imgPath = payload.image; //TODO get binary image, save it and get path
+    const fileName = Math.floor(Math.random() * 90000000).toString() + id.toString()
+    const imgPath = "/images/" + fileName + ".jpeg";
+    const imgData = payload.image.replace('#', '\n');
+
+
+    const buffer = Buffer.from(imgData, 'base64');
+
+
+    fs.writeFile('./images/' + fileName + ".jpeg", buffer, (err) => {
+        if (err) {
+            console.error(err);
+        }
+    });
+
 
     const output = await BlockSchema.find().sort({ 'timestamp': -1 });
     if (!output) return;
