@@ -1,3 +1,5 @@
+imgDirPath = "D:\\fakultet\\treta\\prvSem\\proekti\\pora\\backend\\eatical-mqtt-server\\images"
+# add your path here
 def food_recognition(file_name):
     return {
         "path": file_name,
