@@ -1,8 +1,15 @@
 import cv2
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
-import numpy as np
 import os
+
+import keras
+
+os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
+import numpy as np
+import tensorflow as tf
+from keras.preprocessing import image
+from keras.applications.efficientnet import EfficientNetB4, preprocess_input
+import efficientnet.tfkeras as efn
+from PIL import Image
 
 project_root = os.path.abspath(os.path.dirname(__file__))
 folder = "../images"
@@ -14,16 +21,31 @@ faceCascade = cv2.CascadeClassifier(cascPath)
 
 
 def food_recognition(file_name):
-    img = mpimg.imread(imgDirPath + file_name)
-    plt.imshow(img, cmap="gray")
-    plt.axis('off')
-    plt.show()
-    return {"works" : True}
+    model = EfficientNetB4(weights='imagenet')
 
+    file = os.path.join(project_root, folder, file_name)
+    img = Image.open(file)
+    img = img.resize((380, 380))
 
+    x = np.array(img)
+    x = np.expand_dims(x, axis=0)
+
+    x = preprocess_input(x)
+    preds = model.predict(x)
+    labels = keras.applications.imagenet_utils.decode_predictions(preds, top=3)[0]
+    prediction = [
+        (labels[0][1], labels[0][2]),
+        (labels[1][1], labels[1][2]),
+        (labels[2][1], labels[2][2])
+    ]
+
+    return {"prediction": prediction, "topic": "food", "status": True}
 
 
 def menu_recognition(file_name):
+
+
+
     pass
     # return json object (bson)
 
@@ -60,5 +82,6 @@ def restaurant_recognition(file_name):
 
     return {
         "number_of_faces": len(faces),
-        "topic": "restaurant"
+        "topic": "restaurant",
+        "status": True
     }
