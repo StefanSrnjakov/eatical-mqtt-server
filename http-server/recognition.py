@@ -2,9 +2,10 @@ import cv2
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import numpy as np
+import os
 
-imgDirPath = "D:\\fakultet\\treta\\prvSem\\proekti\\pora\\backend\\eatical-mqtt-server\\images\\"
-# add your path here
+project_root = os.path.abspath(os.path.dirname(__file__))
+folder = "../images"
 
 cascPath = "haarcascade_frontalface_alt.xml"
 
@@ -29,7 +30,9 @@ def menu_recognition(file_name):
 
 def restaurant_recognition(file_name):
     # Read the image
-    gray = cv2.cvtColor(file_name, cv2.COLOR_BGR2GRAY)
+    path = os.path.join(project_root, folder, file_name)
+
+    gray = cv2.cvtColor(path, cv2.COLOR_BGR2GRAY)
 
     # Detect faces in the image
     faces = faceCascade.detectMultiScale(
@@ -39,20 +42,20 @@ def restaurant_recognition(file_name):
         minSize=(30, 30)
     )
 
-    print("Found {0} faces in image {1}!".format(len(faces), file_name))
+    print("Found {0} faces in image {1}!".format(len(faces), path))
 
     # Draw a rectangle around the faces
     for (x, y, w, h) in faces:
-        cv2.rectangle(file_name, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        cv2.rectangle(path, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
     # Show found faces for 1 second
-    cv2.imshow("Faces found", file_name)
+    cv2.imshow("Faces found", path)
     cv2.waitKey(1000)
     cv2.destroyAllWindows()
 
     # Save the processed image
-    # new_filename = "processed_" + file_name
-    # status = cv2.imwrite(os.path.join("saved", new_filename), file_name)
+    # new_filename = "processed_" + path
+    # status = cv2.imwrite(os.path.join("saved", new_filename), path)
     # print("Image written to file-system:", status)
 
     return {
