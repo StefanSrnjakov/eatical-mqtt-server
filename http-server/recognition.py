@@ -1,6 +1,9 @@
 import cv2
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+import numpy as np
 
-imgDirPath = "D:\\fakultet\\treta\\prvSem\\proekti\\pora\\backend\\eatical-mqtt-server\\images"
+imgDirPath = "D:\\fakultet\\treta\\prvSem\\proekti\\pora\\backend\\eatical-mqtt-server\\images\\"
 # add your path here
 
 cascPath = "haarcascade_frontalface_alt.xml"
@@ -10,10 +13,13 @@ faceCascade = cv2.CascadeClassifier(cascPath)
 
 
 def food_recognition(file_name):
-    return {
-        "path": file_name,
-        "topic": "food"
-    }
+    img = mpimg.imread(imgDirPath + file_name)
+    plt.imshow(img, cmap="gray")
+    plt.axis('off')
+    plt.show()
+    return {"works" : True}
+
+
 
 
 def menu_recognition(file_name):
