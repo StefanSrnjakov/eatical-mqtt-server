@@ -10,20 +10,28 @@ class RequestHandler(BaseHTTPRequestHandler):
     # http://localhost:8000?topic=[food|restaurant|menu]1&imgFile=imgFilename
     def do_GET(self):
         path, _, query_string = self.path.partition("?")
-        query_params = dict(qp.split("=") for qp in query_string.split("&"))
+        if query_string == '':
+            self._send_response("")
+            return
 
-        print(query_params)
+        query_params = {}
+        for qp in query_string.split("&"):
+            keyValue = qp.split("=")
+            query_params[keyValue[0]] = keyValue[1]
+
         topic = query_params["topic"]
         imgFileName = query_params["imgFile"]
 
         recognitionObj = {}
-        if topic == "food":
-            recognitionObj = recognition.food_recognition(imgFileName)
-        if topic == "restaurant":
-            recognitionObj = recognition.restaurant_recognition(imgFileName)
-        if topic == "menu":
-            recognitionObj = recognition.menu_recognition(imgFileName)
-
+        try:
+            if topic == "food":
+                recognitionObj = recognition.food_recognition(imgFileName)
+            if topic == "restaurant":
+                recognitionObj = recognition.restaurant_recognition(imgFileName)
+            if topic == "menu":
+                recognitionObj = recognition.menu_recognition(imgFileName)
+        except Exception as message:
+            recognitionObj = {"status": False, "message": message}
         self._send_response(format(recognitionObj))
 
 def run(server_class=HTTPServer, handler_class=RequestHandler, port=8000):
