@@ -31,8 +31,8 @@ def menu_recognition(file_name):
 def restaurant_recognition(file_name):
     # Read the image
     path = os.path.join(project_root, folder, file_name)
-
-    gray = cv2.cvtColor(path, cv2.COLOR_BGR2GRAY)
+    image = cv2.imread(path)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     # Detect faces in the image
     faces = faceCascade.detectMultiScale(
@@ -42,14 +42,14 @@ def restaurant_recognition(file_name):
         minSize=(30, 30)
     )
 
-    print("Found {0} faces in image {1}!".format(len(faces), path))
+    print("Found {0} faces in image {1}!".format(len(faces), file_name))
 
     # Draw a rectangle around the faces
     for (x, y, w, h) in faces:
-        cv2.rectangle(path, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
     # Show found faces for 1 second
-    cv2.imshow("Faces found", path)
+    cv2.imshow("Faces found", image)
     cv2.waitKey(1000)
     cv2.destroyAllWindows()
 
