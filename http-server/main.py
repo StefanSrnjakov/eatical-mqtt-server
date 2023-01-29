@@ -1,5 +1,6 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import recognition
+
 class RequestHandler(BaseHTTPRequestHandler):
     def _send_response(self, message):
         self.send_response(200)
