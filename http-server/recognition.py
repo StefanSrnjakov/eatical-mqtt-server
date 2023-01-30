@@ -11,6 +11,9 @@ from keras.applications.efficientnet import EfficientNetB4, preprocess_input
 import efficientnet.tfkeras as efn
 from PIL import Image
 
+from glob import glob
+import keras_ocr
+
 project_root = os.path.abspath(os.path.dirname(__file__))
 folder = "../images"
 
@@ -43,11 +46,21 @@ def food_recognition(file_name):
 
 
 def menu_recognition(file_name):
+    file = os.path.join(project_root, folder, file_name)
+    img = glob(file)
 
+    pipeline = keras_ocr.pipeline.Pipeline()
+    results = pipeline.recognize(img)
 
+    words = []
+    for result in results[0]:
+        text = result[0]
+        words.append(text)
 
-    pass
-    # return json object (bson)
+    return {
+        "words": words,
+        "status": True
+    }
 
 
 def restaurant_recognition(file_name):
