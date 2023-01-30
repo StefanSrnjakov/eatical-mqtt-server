@@ -1,7 +1,8 @@
+import json
 import cv2
 import os
-
 import keras
+import matplotlib.pyplot as plt
 
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 import numpy as np
@@ -37,12 +38,12 @@ def food_recognition(file_name):
     preds = model.predict(x)
     labels = keras.applications.imagenet_utils.decode_predictions(preds, top=3)[0]
     prediction = [
-        (labels[0][1], labels[0][2]),
-        (labels[1][1], labels[1][2]),
-        (labels[2][1], labels[2][2])
+        (labels[0][1], str(labels[0][2])),
+        (labels[1][1], str(labels[1][2])),
+        (labels[2][1], str(labels[2][2]))
     ]
-
-    return {"prediction": prediction, "topic": "food", "status": True}
+    output = {"prediction": prediction, "topic": "food", "status": True}
+    return json.dumps(output)
 
 
 def menu_recognition(file_name):
@@ -57,10 +58,12 @@ def menu_recognition(file_name):
         text = result[0]
         words.append(text)
 
-    return {
+    output = {
+        "topic": "menu",
         "words": words,
         "status": True
     }
+    return json.dumps(output)
 
 
 def restaurant_recognition(file_name):
@@ -87,14 +90,15 @@ def restaurant_recognition(file_name):
     cv2.imshow("Faces found", image)
     cv2.waitKey(1000)
     cv2.destroyAllWindows()
-
+    
     # Save the processed image
     # new_filename = "processed_" + path
     # status = cv2.imwrite(os.path.join("saved", new_filename), path)
     # print("Image written to file-system:", status)
 
-    return {
+    output = {
         "number_of_faces": len(faces),
         "topic": "restaurant",
         "status": True
     }
+    return json.dumps(output)

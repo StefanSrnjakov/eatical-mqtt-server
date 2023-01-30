@@ -2,6 +2,8 @@ const topics = require("./topics")
 const BlockSchema = require('../models/BlockModel')
 const fs = require('fs');
 const md5 = require("blueimp-md5");
+const axios = require("axios")
+const imgDirPath = "D:\\fakultet\\treta\\prvSem\\proekti\\pora\\backend\\eatical-mqtt-server\\images\\";
 
 function initializeMqttEvents(mqttServer, aedes) {
 
@@ -43,18 +45,37 @@ async function handleMessageOnTopic(packet, client) {
     const payload = JSON.parse(packet.payload.toString());
     const coordinates = payload.coordinates;
     const fileName = Math.floor(Math.random() * 90000000).toString() + id.toString()
-    const imgPath = "/images/" + fileName + ".jpeg";
+    const imgPath = imgDirPath + fileName + ".jpeg";
     const imgData = payload.image.replace('#', '\n');
 
-
+    let classification = {};
     const buffer = Buffer.from(imgData, 'base64');
 
 
-    fs.writeFile('./images/' + fileName + ".jpeg", buffer, (err) => {
+    fs.writeFile(imgPath, buffer, (err) => {
         if (err) {
             console.error(err);
         }
     });
+
+    // get classification response
+    try {
+        const response = await axios.get('http://localhost:8000', {
+            params: {
+                topic: topic,
+                imgFile: fileName + ".jpeg"
+            }
+        });
+        let data = response.data;
+        classification = data;
+    } catch (error) {
+        console.error(error);
+    }
+
+    if (classification.status == false) {
+        classification = "Can't be classified."
+    }
+
 
 
     const output = await BlockSchema.find().sort({ 'timestamp': -1 });
@@ -68,8 +89,9 @@ async function handleMessageOnTopic(packet, client) {
         coordinates: coordinates,
         transaction: {
             user: id,
-            imgPath: imgPath,
-            type: topic
+            imgPath: fileName,
+            type: topic,
+            classification: classification
         },
         prevHash: prevHash,
         hash: hash
