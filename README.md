@@ -13,4 +13,4 @@
    restaurant <br/>
 ### Payload should be Json object stringified that contains 
    coordinates: [double] <br/>
-   image: <image data> <br/>
+   image: base64 <br/>
